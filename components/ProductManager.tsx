@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Product } from '../types';
 import { fetchProducts, createProduct, deleteProduct, updateProduct, uploadProductImage } from '../services/dataService';
 import { generateProductDescription } from '../services/geminiService';
@@ -67,6 +67,7 @@ export const ProductManager: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
     try {
       const productData = {
         ...formData,
@@ -84,6 +85,7 @@ export const ProductManager: React.FC = () => {
       await loadProducts();
     } catch (err) {
       console.error(err);
+      alert("Failed to save product.");
     } finally {
       setLoading(false);
     }
