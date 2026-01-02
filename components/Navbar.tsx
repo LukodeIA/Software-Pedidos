@@ -26,7 +26,7 @@ export const Navbar: React.FC<NavbarProps> = ({ toggleCart, cartCount = 0 }) => 
               <div className="bg-orange-500 p-1.5 rounded-lg">
                 <Coffee className="h-6 w-6 text-white" />
               </div>
-              <span className="font-bold text-xl tracking-tight text-gray-900">GastroManager</span>
+              <span className="font-bold text-xl tracking-tight text-gray-900">Euge te amo</span>
             </Link>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
               {!user && (
@@ -35,8 +35,8 @@ export const Navbar: React.FC<NavbarProps> = ({ toggleCart, cartCount = 0 }) => 
                 </Link>
               )}
               {user && (
-                 <Link to="/dashboard" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                  Dashboard
+                <Link to="/dashboard" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                  Panel de Control
                 </Link>
               )}
             </div>
@@ -60,7 +60,7 @@ export const Navbar: React.FC<NavbarProps> = ({ toggleCart, cartCount = 0 }) => 
               <div className="flex items-center gap-4">
                 <div className="text-sm text-right hidden md:block">
                   <p className="font-medium text-gray-900">{user.email}</p>
-                  <p className="text-xs text-gray-500 capitalize">{user.role}</p>
+                  <p className="text-xs text-gray-500 capitalize">{user.role === 'admin' ? 'Administrador' : 'Empleado'}</p>
                 </div>
                 <button
                   onClick={handleSignOut}
@@ -75,7 +75,7 @@ export const Navbar: React.FC<NavbarProps> = ({ toggleCart, cartCount = 0 }) => 
                 to="/login"
                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
               >
-                Staff Login
+                Acceso Personal
               </Link>
             )}
           </div>

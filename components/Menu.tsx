@@ -11,7 +11,7 @@ export const Menu: React.FC<MenuProps> = ({ addToCart }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState<string[]>([]);
-  const [activeCategory, setActiveCategory] = useState<string>('All');
+  const [activeCategory, setActiveCategory] = useState<string>('Todos');
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -20,7 +20,7 @@ export const Menu: React.FC<MenuProps> = ({ addToCart }) => {
         const data = await fetchProducts();
         setProducts(data);
         const cats = Array.from(new Set(data.map(p => p.category)));
-        setCategories(['All', ...cats]);
+        setCategories(['Todos', ...cats]);
       } catch (err: any) {
         console.error("Failed to load products:", err);
         setError(err.message || JSON.stringify(err));
@@ -31,31 +31,31 @@ export const Menu: React.FC<MenuProps> = ({ addToCart }) => {
     loadData();
   }, []);
 
-  const filteredProducts = activeCategory === 'All' 
-    ? products 
+  const filteredProducts = activeCategory === 'Todos'
+    ? products
     : products.filter(p => p.category === activeCategory);
 
   if (loading) {
-    return <div className="p-12 text-center text-gray-500">Loading menu...</div>;
+    return <div className="p-12 text-center text-gray-500">Cargando menú...</div>;
   }
 
   if (error) {
-     return (
-        <div className="p-12 text-center text-red-500">
-           <p>Failed to load menu.</p>
-           <p className="text-sm text-gray-400 mt-2">{error}</p>
-        </div>
-     )
+    return (
+      <div className="p-12 text-center text-red-500">
+        <p>Error al cargar el menú.</p>
+        <p className="text-sm text-gray-400 mt-2">{error}</p>
+      </div>
+    )
   }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="text-center mb-10">
         <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl sm:tracking-tight lg:text-6xl">
-          Fresh & Local
+          Fresco y Local
         </h1>
         <p className="mt-5 max-w-xl mx-auto text-xl text-gray-500">
-          Order delicious meals directly from our kitchen to your table.
+          Pide comida deliciosa directamente para tu mesa.
         </p>
       </div>
 
@@ -66,11 +66,10 @@ export const Menu: React.FC<MenuProps> = ({ addToCart }) => {
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
-                activeCategory === cat
+              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${activeCategory === cat
                   ? 'bg-orange-600 text-white'
                   : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
-              }`}
+                }`}
             >
               {cat}
             </button>
@@ -83,7 +82,7 @@ export const Menu: React.FC<MenuProps> = ({ addToCart }) => {
         {filteredProducts.map((product) => (
           <div key={product.id} className="group relative bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
             <div className="aspect-w-3 aspect-h-2 bg-gray-200 group-hover:opacity-75 relative h-48 w-full overflow-hidden">
-               <img
+              <img
                 src={product.image_url || `https://picsum.photos/400/300?seed=${product.id}`}
                 alt={product.name}
                 className="w-full h-full object-center object-cover"
@@ -107,17 +106,17 @@ export const Menu: React.FC<MenuProps> = ({ addToCart }) => {
                   className="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
                 >
                   <Plus className="w-4 h-4 mr-2" />
-                  Add to Cart
+                  Agregar al Carrito
                 </button>
               </div>
             </div>
           </div>
         ))}
       </div>
-      
+
       {products.length === 0 && (
         <div className="text-center text-gray-500 py-12">
-          No products found in the database.
+          No se encontraron productos en la base de datos.
         </div>
       )}
     </div>

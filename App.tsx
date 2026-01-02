@@ -30,68 +30,101 @@ const AuthProvider = ({ children }: { children?: React.ReactNode }) => {
   });
 
   useEffect(() => {
-    // Check Supabase session
-    if (isSupabaseConfigured()) {
-       supabase.auth.getSession().then(async ({ data: { session } }) => {
-        if (session) {
-           try {
-             // Fetch profile to get role
-             const { data, error } = await supabase
-               .from('profiles')
-               .select('role')
-               .eq('id', session.user.id)
-               .maybeSingle(); // Use maybeSingle to avoid error if row doesn't exist
+    let mounted = true;
 
-             setState({
-                user: { 
-                  id: session.user.id, 
-                  email: session.user.email!, 
-                  role: data?.role || 'employee' // Default to employee if no profile found
-                },
-                isAuthenticated: true,
-                loading: false
-             });
-           } catch (err) {
-             console.error("Profile fetch error:", err);
-             // Fallback to allow login even if profile fetch fails
-             setState({
-                user: { id: session.user.id, email: session.user.email!, role: 'employee' },
-                isAuthenticated: true,
-                loading: false
-             });
-           }
-        } else {
-            setState({ user: null, isAuthenticated: false, loading: false });
+    async function initializeAuth() {
+      // DEBUG: Log start
+      console.log("AuthProvider: Starting initialization...");
+
+      if (!isSupabaseConfigured()) {
+        console.warn("AuthProvider: Supabase not configured.");
+        if (mounted) setState(prev => ({ ...prev, loading: false }));
+        return;
+      }
+
+      // TIMEOUT FAILSAFE
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Auth initialization timed out after 15s")), 15000)
+      );
+
+      try {
+        console.log("AuthProvider: Fetching session...");
+        const sessionPromise = supabase.auth.getSession();
+
+        // Race checking session against timeout
+        const result = await Promise.race([sessionPromise, timeoutPromise]) as any;
+        const { data: { session }, error } = result;
+
+        if (error) {
+          console.error("AuthProvider: Error getting session:", error);
+          if (mounted) setState({ user: null, isAuthenticated: false, loading: false });
+          return;
         }
-      });
 
-      // Listen for auth changes
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
         if (session) {
-           const { data } = await supabase.from('profiles').select('role').eq('id', session.user.id).maybeSingle();
-           setState({
-              user: { id: session.user.id, email: session.user.email!, role: data?.role || 'employee' },
+          console.log("AuthProvider: Session found, fetching profile for:", session.user.id);
+
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', session.user.id)
+            .maybeSingle();
+
+          if (profileError) console.error("AuthProvider: Profile fetch error:", profileError);
+          console.log("AuthProvider: Profile loaded:", profile);
+
+          if (mounted) {
+            console.log("AuthProvider: Setting authenticated state.");
+            setState({
+              user: {
+                id: session.user.id,
+                email: session.user.email!,
+                role: profile?.role || 'employee'
+              },
               isAuthenticated: true,
               loading: false
-           });
+            });
+          }
         } else {
-           setState({ user: null, isAuthenticated: false, loading: false });
+          console.log("AuthProvider: No session found, user is guest.");
+          if (mounted) setState({ user: null, isAuthenticated: false, loading: false });
         }
-      });
-
-      return () => subscription.unsubscribe();
-
-    } else {
-        // Stop loading if in Mock mode
-        setState(prev => ({ ...prev, loading: false }));
+      } catch (err) {
+        console.error("AuthProvider: Unexpected auth error:", err);
+        if (mounted) setState({ user: null, isAuthenticated: false, loading: false });
+      }
     }
+
+    initializeAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (!mounted) return;
+
+      if (session) {
+        // We might need to refetch profile on sign in
+        const { data } = await supabase.from('profiles').select('role').eq('id', session.user.id).maybeSingle();
+
+        setState({
+          user: { id: session.user.id, email: session.user.email!, role: data?.role || 'employee' },
+          isAuthenticated: true,
+          loading: false
+        });
+      } else {
+        setState({ user: null, isAuthenticated: false, loading: false });
+      }
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   // Mock Login Function for Demo purposes if no Supabase
   const signIn = async (role: 'admin' | 'employee') => {
     if (isSupabaseConfigured()) {
-        // This would be triggered by the Auth UI, not directly here usually
-        return; 
+      // This would be triggered by the Auth UI, not directly here usually
+      return;
     }
     // Mock Logic
     setState({
@@ -102,13 +135,20 @@ const AuthProvider = ({ children }: { children?: React.ReactNode }) => {
   };
 
   const signOut = async () => {
-    if(isSupabaseConfigured()) await supabase.auth.signOut();
+    if (isSupabaseConfigured()) await supabase.auth.signOut();
+    sessionStorage.removeItem('products_cache'); // Clear cache on logout
     setState({ user: null, isAuthenticated: false, loading: false });
   };
 
   return (
     <AuthContext.Provider value={{ ...state, signIn, signOut }}>
-      {!state.loading && children}
+      {state.loading ? (
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
+        </div>
+      ) : (
+        children
+      )}
     </AuthContext.Provider>
   );
 };
@@ -148,11 +188,11 @@ const MainLayout = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
-      <Navbar 
-        toggleCart={() => setIsCartOpen(true)} 
-        cartCount={cartItems.reduce((acc, item) => acc + item.quantity, 0)} 
+      <Navbar
+        toggleCart={() => setIsCartOpen(true)}
+        cartCount={cartItems.reduce((acc, item) => acc + item.quantity, 0)}
       />
-      
+
       <main>
         <Routes>
           <Route path="/" element={<Menu addToCart={addToCart} />} />
@@ -166,10 +206,10 @@ const MainLayout = () => {
       </main>
 
       {/* Cart Modal is global but only relevant for public users usually, though accessible */}
-      <Cart 
-        isOpen={isCartOpen} 
-        onClose={() => setIsCartOpen(false)} 
-        items={cartItems} 
+      <Cart
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+        items={cartItems}
         updateQuantity={updateQuantity}
         clearCart={() => setCartItems([])}
       />

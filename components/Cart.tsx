@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { CartItem } from '../types';
-import { X, Minus, Plus, Loader2 } from 'lucide-react';
+import { X, Minus, Plus, Loader2, AlertCircle } from 'lucide-react';
 import { createOrder } from '../services/dataService';
+import { useAuth } from '../App';
 
 interface CartProps {
   isOpen: boolean;
@@ -12,9 +13,12 @@ interface CartProps {
 }
 
 export const Cart: React.FC<CartProps> = ({ isOpen, onClose, items, updateQuantity, clearCart }) => {
+  const { user } = useAuth();
   const [step, setStep] = useState<'cart' | 'details' | 'success'>('cart');
   const [customerInfo, setCustomerInfo] = useState({ name: '', phone: '', address: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const isEmployee = user?.role === 'employee';
 
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
@@ -32,7 +36,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, items, updateQuanti
       setStep('success');
       clearCart();
     } catch (err) {
-      alert("Failed to place order.");
+      alert("Error al procesar el pedido.");
     } finally {
       setIsSubmitting(false);
     }
@@ -43,16 +47,16 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, items, updateQuanti
   return (
     <div className="fixed inset-0 overflow-hidden z-50">
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={onClose} />
+        <div className="absolute inset-0 bg-black/10 backdrop-blur-sm transition-opacity" onClick={onClose} />
         <div className="fixed inset-y-0 right-0 pl-10 max-w-full flex">
           <div className="w-screen max-w-md">
             <div className="h-full flex flex-col bg-white shadow-xl overflow-y-scroll">
-              
+
               {/* Header */}
               <div className="flex-1 py-6 overflow-y-auto px-4 sm:px-6">
                 <div className="flex items-start justify-between">
                   <h2 className="text-lg font-medium text-gray-900">
-                    {step === 'cart' ? 'Shopping Cart' : step === 'details' ? 'Checkout Details' : 'Order Confirmed'}
+                    {step === 'cart' ? 'Carrito de Compras' : step === 'details' ? 'Datos del Pedido' : 'Pedido Confirmado'}
                   </h2>
                   <div className="ml-3 h-7 flex items-center">
                     <button onClick={onClose} className="bg-white rounded-md text-gray-400 hover:text-gray-500">
@@ -70,18 +74,18 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, items, updateQuanti
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
                       </div>
-                      <h3 className="text-lg font-medium text-gray-900">Order Placed!</h3>
-                      <p className="mt-2 text-sm text-gray-500">Thank you for your order. We'll start preparing it right away.</p>
-                      <button 
+                      <h3 className="text-lg font-medium text-gray-900">¡Pedido Enviado!</h3>
+                      <p className="mt-2 text-sm text-gray-500">Gracias por tu compra. Empezaremos a prepararlo de inmediato.</p>
+                      <button
                         onClick={() => { setStep('cart'); onClose(); }}
                         className="mt-6 w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700"
                       >
-                        Back to Menu
+                        Volver al Menú
                       </button>
                     </div>
                   ) : step === 'cart' ? (
                     items.length === 0 ? (
-                      <p className="text-center text-gray-500 mt-10">Your cart is empty.</p>
+                      <p className="text-center text-gray-500 mt-10">Tu carrito está vacío.</p>
                     ) : (
                       <div className="flow-root">
                         <ul className="-my-6 divide-y divide-gray-200">
@@ -99,9 +103,9 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, items, updateQuanti
                                 </div>
                                 <div className="flex-1 flex items-end justify-between text-sm">
                                   <div className="flex items-center border border-gray-300 rounded-md">
-                                    <button onClick={() => updateQuantity(item.id, -1)} className="p-1 hover:bg-gray-100"><Minus className="w-4 h-4"/></button>
+                                    <button onClick={() => updateQuantity(item.id, -1)} className="p-1 hover:bg-gray-100"><Minus className="w-4 h-4" /></button>
                                     <span className="px-2">{item.quantity}</span>
-                                    <button onClick={() => updateQuantity(item.id, 1)} className="p-1 hover:bg-gray-100"><Plus className="w-4 h-4"/></button>
+                                    <button onClick={() => updateQuantity(item.id, 1)} className="p-1 hover:bg-gray-100"><Plus className="w-4 h-4" /></button>
                                   </div>
                                 </div>
                               </div>
@@ -113,16 +117,16 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, items, updateQuanti
                   ) : (
                     <form id="checkout-form" onSubmit={handleSubmit} className="space-y-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700">Name</label>
-                        <input required type="text" className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-orange-500 focus:border-orange-500" value={customerInfo.name} onChange={e => setCustomerInfo({...customerInfo, name: e.target.value})} />
+                        <label className="block text-sm font-medium text-gray-700">Nombre</label>
+                        <input required type="text" className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-orange-500 focus:border-orange-500" value={customerInfo.name} onChange={e => setCustomerInfo({ ...customerInfo, name: e.target.value })} />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700">Phone</label>
-                        <input required type="tel" className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-orange-500 focus:border-orange-500" value={customerInfo.phone} onChange={e => setCustomerInfo({...customerInfo, phone: e.target.value})} />
+                        <label className="block text-sm font-medium text-gray-700">Teléfono</label>
+                        <input required type="tel" className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-orange-500 focus:border-orange-500" value={customerInfo.phone} onChange={e => setCustomerInfo({ ...customerInfo, phone: e.target.value })} />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700">Address (Optional)</label>
-                        <textarea rows={3} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-orange-500 focus:border-orange-500" value={customerInfo.address} onChange={e => setCustomerInfo({...customerInfo, address: e.target.value})} />
+                        <label className="block text-sm font-medium text-gray-700">Dirección (Opcional)</label>
+                        <textarea rows={3} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-orange-500 focus:border-orange-500" value={customerInfo.address} onChange={e => setCustomerInfo({ ...customerInfo, address: e.target.value })} />
                       </div>
                     </form>
                   )}
@@ -136,15 +140,24 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, items, updateQuanti
                     <p>Subtotal</p>
                     <p>${total.toFixed(2)}</p>
                   </div>
-                  <p className="mt-0.5 text-sm text-gray-500">Shipping and taxes calculated at checkout.</p>
+                  <p className="mt-0.5 text-sm text-gray-500">Envío e impuestos calculados al finalizar.</p>
                   <div className="mt-6">
                     {step === 'cart' ? (
-                      <button
-                        onClick={() => setStep('details')}
-                        className="w-full flex justify-center items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-orange-600 hover:bg-orange-700"
-                      >
-                        Checkout
-                      </button>
+                      isEmployee ? (
+                        <div className="bg-orange-50 p-4 rounded-md flex items-start gap-3 border border-orange-200">
+                          <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+                          <p className="text-sm text-orange-800">
+                            El personal de staff no puede realizar pedidos. Por favor, cierra sesión o usa una pestaña de incógnito para pedir como cliente.
+                          </p>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => setStep('details')}
+                          className="w-full flex justify-center items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-orange-600 hover:bg-orange-700"
+                        >
+                          Finalizar Pedido
+                        </button>
+                      )
                     ) : (
                       <button
                         type="submit"
@@ -152,15 +165,15 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, items, updateQuanti
                         disabled={isSubmitting}
                         className="w-full flex justify-center items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-green-600 hover:bg-green-700 disabled:opacity-50"
                       >
-                         {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                        {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                         Confirm Order
                       </button>
                     )}
                   </div>
                   {step === 'details' && (
-                     <div className="mt-2 text-center">
-                        <button onClick={() => setStep('cart')} className="text-sm text-orange-600 hover:text-orange-500">Back to Cart</button>
-                     </div>
+                    <div className="mt-2 text-center">
+                      <button onClick={() => setStep('cart')} className="text-sm text-orange-600 hover:text-orange-500">Volver al Carrito</button>
+                    </div>
                   )}
                 </div>
               )}
