@@ -114,15 +114,15 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, items, updateQuanti
                     <form id="checkout-form" onSubmit={handleSubmit} className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700">Name</label>
-                        <input required type="text" className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-orange-500 focus:border-orange-500" value={customerInfo.name} onChange={e => setCustomerInfo({...customerInfo, name: e.target.value})} />
+                        <input required type="text" className="mt-1 block w-full bg-white text-gray-900 border-gray-300 rounded-md shadow-sm p-2 border focus:ring-orange-500 focus:border-orange-500" value={customerInfo.name} onChange={e => setCustomerInfo({...customerInfo, name: e.target.value})} />
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700">Phone</label>
-                        <input required type="tel" className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-orange-500 focus:border-orange-500" value={customerInfo.phone} onChange={e => setCustomerInfo({...customerInfo, phone: e.target.value})} />
+                        <input required type="tel" className="mt-1 block w-full bg-white text-gray-900 border-gray-300 rounded-md shadow-sm p-2 border focus:ring-orange-500 focus:border-orange-500" value={customerInfo.phone} onChange={e => setCustomerInfo({...customerInfo, phone: e.target.value})} />
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700">Address (Optional)</label>
-                        <textarea rows={3} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-orange-500 focus:border-orange-500" value={customerInfo.address} onChange={e => setCustomerInfo({...customerInfo, address: e.target.value})} />
+                        <textarea rows={3} className="mt-1 block w-full bg-white text-gray-900 border-gray-300 rounded-md shadow-sm p-2 border focus:ring-orange-500 focus:border-orange-500" value={customerInfo.address} onChange={e => setCustomerInfo({...customerInfo, address: e.target.value})} />
                       </div>
                     </form>
                   )}

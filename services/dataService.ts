@@ -58,6 +58,29 @@ export const createProduct = async (product: Omit<Product, 'id'>): Promise<Produ
   return createMock();
 };
 
+export const updateProduct = async (id: string, updates: Partial<Product>): Promise<Product | null> => {
+  const updateMock = () => {
+    const index = mockProductsStore.findIndex(p => p.id === id);
+    if (index !== -1) {
+      mockProductsStore[index] = { ...mockProductsStore[index], ...updates };
+      return mockProductsStore[index];
+    }
+    return null;
+  };
+
+  if (isSupabaseConfigured()) {
+    try {
+      const { data, error } = await supabase.from('products').update(updates).eq('id', id).select().single();
+      if (error) throw error;
+      return data as Product;
+    } catch (err) {
+      logError('Supabase updateProduct', err);
+      return updateMock();
+    }
+  }
+  return updateMock();
+};
+
 export const deleteProduct = async (id: string): Promise<void> => {
   const deleteMock = () => {
     mockProductsStore = mockProductsStore.filter(p => p.id !== id);
