@@ -1,0 +1,5 @@
+{
+  "name": "GastroManager RBAC",
+  "description": "A scalable restaurant order management system with strict role-based access control (Admin, Employee, Client) and Supabase integration.",
+  "requestFramePermissions": []
+}
