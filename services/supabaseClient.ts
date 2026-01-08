@@ -30,8 +30,8 @@ const getEnv = (key: string) => {
   return '';
 };
 
-const SUPABASE_URL = MANUAL_URL || getEnv('SUPABASE_URL');
-const SUPABASE_ANON_KEY = MANUAL_ANON_KEY || getEnv('SUPABASE_ANON_KEY');
+export const SUPABASE_URL = MANUAL_URL || getEnv('SUPABASE_URL');
+export const SUPABASE_ANON_KEY = MANUAL_ANON_KEY || getEnv('SUPABASE_ANON_KEY');
 
 // Initialize client
 // If no keys are provided, we create a client pointing to a placeholder to avoid crashes,

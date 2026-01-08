@@ -1,5 +1,6 @@
-import { supabase, isSupabaseConfigured } from './supabaseClient';
-import { Product, Order, OrderStatus } from '../types';
+import { supabase, isSupabaseConfigured, SUPABASE_URL, SUPABASE_ANON_KEY } from './supabaseClient';
+import { Product, Order, OrderStatus, UserProfile } from '../types';
+import { createClient } from '@supabase/supabase-js';
 import { MOCK_PRODUCTS, MOCK_ORDERS } from './mockData';
 
 // Simple in-memory store for the session (Mock Mode fallback)
@@ -40,8 +41,8 @@ export const fetchProducts = async (): Promise<Product[]> => {
 
   if (isSupabaseConfigured()) {
     try {
-      // 5s Timeout race
-      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Request timed out')), 5000));
+      // 12s Timeout race
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Request timed out')), 12000));
       const dataPromise = supabase.from('products').select('*').eq('active', true);
 
       const result = await Promise.race([dataPromise, timeoutPromise]) as any;
@@ -109,6 +110,54 @@ export const updateProduct = async (id: string, updates: Partial<Product>): Prom
     }
   }
   return updateMock();
+};
+
+// --- Employee Management ---
+
+export const fetchProfiles = async (): Promise<UserProfile[]> => {
+  if (!isSupabaseConfigured()) return [];
+
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return (data || []) as UserProfile[];
+  } catch (err) {
+    logError('Supabase fetchProfiles', err);
+    return [];
+  }
+};
+
+/**
+ * Creates a new employee user in Auth and relies on the DB trigger
+ * to create the profile. We use a secondary client to avoid
+ * logging out the current admin.
+ */
+export const createEmployee = async (email: string, password: string): Promise<void> => {
+  if (!isSupabaseConfigured()) return;
+
+  // Secondary client without persistence
+  const tempClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: { persistSession: false }
+  });
+
+  try {
+    const { error } = await tempClient.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { role: 'employee' } // Optional: help the trigger or for metadata
+      }
+    });
+
+    if (error) throw error;
+  } catch (err) {
+    logError('Supabase createEmployee', err);
+    throw err;
+  }
 };
 
 export const deleteProduct = async (id: string): Promise<void> => {

@@ -1,0 +1,340 @@
+[
+  {
+    "id": "TC001",
+    "title": "Cliente puede realizar pedidos sin autenticación",
+    "description": "Verifica que un cliente pueda visualizar el menú, agregar productos al carrito y enviar un pedido sin necesidad de autenticarse.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Acceder a la página pública de la aplicación"
+      },
+      {
+        "type": "assertion",
+        "description": "Verificar que el menú se visualiza correctamente con productos categorizados y precios en formato ARS"
+      },
+      {
+        "type": "action",
+        "description": "Agregar uno o más productos al carrito"
+      },
+      {
+        "type": "assertion",
+        "description": "Verificar que las cantidades y el total del carrito se muestran correctamente con formato ARS"
+      },
+      {
+        "type": "action",
+        "description": "Enviar el pedido a través de la interfaz de envío sin autenticación"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirmar que el pedido se registra con estado inicial pendiente y detalles correctos"
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "Empleado inicia sesión y visualiza lista de pedidos",
+    "description": "Verificar que un empleado autenticado pueda acceder al panel de pedidos, ver el listado completo y visualizar detalles de cada pedido.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navegar a la página de login"
+      },
+      {
+        "type": "action",
+        "description": "Ingresar credenciales válidas de empleado y hacer login mediante Supabase Auth"
+      },
+      {
+        "type": "assertion",
+        "description": "Verificar que la autenticación es exitosa y se redirige al dashboard de pedidos"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirmar que el listado de pedidos cargue correctamente mostrando estado y detalles"
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "Empleado actualiza estado de pedido",
+    "description": "Verifica que el empleado pueda cambiar el estado de un pedido entre pendiente, preparando, listo y entregado y que los cambios se reflejen correctamente.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Autenticarse como empleado y acceder al listado de pedidos"
+      },
+      {
+        "type": "action",
+        "description": "Seleccionar un pedido con estado pendiente"
+      },
+      {
+        "type": "action",
+        "description": "Cambiar el estado del pedido a 'en preparación'"
+      },
+      {
+        "type": "assertion",
+        "description": "Verificar que el estado del pedido se actualiza correctamente en la interfaz y en la base de datos"
+      },
+      {
+        "type": "action",
+        "description": "Repetir cambio de estado a 'listo' y luego a 'entregado'"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirmar que cada cambio se refleja adecuadamente sin errores"
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "Admin puede crear, editar y eliminar productos",
+    "description": "Comprobar que un usuario con rol Admin pueda realizar las operaciones CRUD sobre productos, incluyendo la generación de descripciones con Google Gemini y la carga de imágenes a Supabase Storage.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Iniciar sesión como usuario Admin"
+      },
+      {
+        "type": "action",
+        "description": "Acceder al panel de administración de productos"
+      },
+      {
+        "type": "action",
+        "description": "Crear un nuevo producto con nombre, categoría, precio, descripción generada con Gemini, e imagen"
+      },
+      {
+        "type": "assertion",
+        "description": "Verificar que el producto se añade correctamente y se refleja en el listado"
+      },
+      {
+        "type": "action",
+        "description": "Editar el producto modificado, cambiar detalles y actualizar"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirmar que los cambios se guardaron y muestran correctamente"
+      },
+      {
+        "type": "action",
+        "description": "Eliminar el producto"
+      },
+      {
+        "type": "assertion",
+        "description": "Verificar que el producto es removido correctamente sin dejar datos residuales"
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Admin gestiona usuarios empleados",
+    "description": "Verificar que el Admin puede registrar nuevos empleados mediante proceso de Silent Signup y administrar usuarios empleados desde el panel, asegurando que sólo empleados puedan acceder a su panel.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Loguearse como Admin y acceder al panel de gestión de empleados"
+      },
+      {
+        "type": "action",
+        "description": "Registrar un nuevo empleado mediante Silent Signup, completando los datos solicitados"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirmar que el empleado es creado y listado en el panel"
+      },
+      {
+        "type": "action",
+        "description": "Intentar iniciar sesión con el nuevo usuario empleado"
+      },
+      {
+        "type": "assertion",
+        "description": "Verificar acceso exitoso a panel de pedidos y ausencia de permisos para editar productos o usuarios"
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "Control de acceso basado en roles - Validación frontend y backend",
+    "description": "Verifica que los roles Cliente, Empleado y Admin tienen acceso correcto a vistas y funcionalidades, y que backend y Supabase RLS impiden accesos no autorizados.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Sin autenticación, intentar acceder a panel privado de empleados o admin"
+      },
+      {
+        "type": "assertion",
+        "description": "Verificar acceso denegado y redirección a página pública o login"
+      },
+      {
+        "type": "action",
+        "description": "Ingresar como empleado y tratar acceder a administrador o modificar usuarios/productos"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirmar bloqueo y mensaje de permiso insuficiente"
+      },
+      {
+        "type": "action",
+        "description": "Ingresar como admin y acceder a todos los paneles"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirmar acceso completo y permisos para CRUD completo"
+      },
+      {
+        "type": "action",
+        "description": "Intentar modificar datos directamente en backend con rol incorrecto simulando llamadas no autorizadas"
+      },
+      {
+        "type": "assertion",
+        "description": "Verificar que Supabase RLS impide la operación y se devuelve error de permisos"
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "Validación de formatos y manejo de errores en pedidos públicos",
+    "description": "Asegura que la aplicación maneja correctamente errores de entrada al agregar productos y enviar pedidos sin autenticación, incluyendo cantidades inválidas y carrito vacío.",
+    "category": "error handling",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Acceder a menú público e intentar agregar cantidad negativa o cero de un producto"
+      },
+      {
+        "type": "assertion",
+        "description": "Verificar que la aplicación muestra mensaje de error y no añade producto"
+      },
+      {
+        "type": "action",
+        "description": "Intentar enviar pedido con carrito vacío"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirmar que se impide el envío con mensaje adecuado"
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "Autenticación segura con Supabase Auth para Empleados y Admins",
+    "description": "Validar el correcto funcionamiento del proceso de login/logout para usuarios Empleado y Admin, incluyendo manejo de credenciales inválidas.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navegar a la página de login"
+      },
+      {
+        "type": "action",
+        "description": "Ingresar credenciales válidas de un usuario empleado y hacer login"
+      },
+      {
+        "type": "assertion",
+        "description": "Verificar inicio de sesión exitoso y redirección a dashboard"
+      },
+      {
+        "type": "action",
+        "description": "Cerrar sesión desde la opción logout"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirmar que la sesión termina y regresa a la página de login o pública"
+      },
+      {
+        "type": "action",
+        "description": "Intentar login con credenciales inválidas"
+      },
+      {
+        "type": "assertion",
+        "description": "Verificar que se muestra mensaje de error y no permite autenticar"
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "Separación clara entre vistas públicas y privadas - prueba end-to-end",
+    "description": "Prueba integral que confirma la imposibilidad de acceso cruzado entre vistas públicas, panel empleado y panel admin en distintas sesiones y roles.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Como cliente (sin login), acceder a página pública y enviar pedido"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirmar pedido enviado y no acceso a panel privado"
+      },
+      {
+        "type": "action",
+        "description": "Intentar manualmente navegar a rutas de empleado/admin sin autenticación"
+      },
+      {
+        "type": "assertion",
+        "description": "Verificar redirección o bloqueo de acceso"
+      },
+      {
+        "type": "action",
+        "description": "Autenticarse como empleado y verificar acceso solo a panel pedidos"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirmar ausencia de opciones para gestión de productos o usuarios"
+      },
+      {
+        "type": "action",
+        "description": "Login como admin, acceder a panel completo de administración"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirmar acceso total y que las funcionalidades responden correctamente"
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "Verificación del código legible, reutilizable y escalable orientado a roles",
+    "description": "Revisión estática y pruebas básicas para confirmar que el código fuente es modular, reutilizable, y permite fácil extensión sin sobreingeniería.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Ejecutar linters y validadores de estilo en el código base"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirmar ausencia de errores y warnings importantes"
+      },
+      {
+        "type": "action",
+        "description": "Revisar componentes clave para verificar separación clara de responsabilidades y uso adecuado de tipos y estados"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirmar que el código facilita reutilización y extensión en base a roles"
+      },
+      {
+        "type": "action",
+        "description": "Ejecutar pruebas unitarias y de integración para validar cobertura"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirmar cobertura adecuada y manejo de casos normales y borde"
+      }
+    ]
+  }
+]

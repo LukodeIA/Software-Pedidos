@@ -3,6 +3,7 @@ import { CartItem } from '../types';
 import { X, Minus, Plus, Loader2, AlertCircle } from 'lucide-react';
 import { createOrder } from '../services/dataService';
 import { useAuth } from '../App';
+import { formatCurrency } from '../services/formatters';
 
 interface CartProps {
   isOpen: boolean;
@@ -98,7 +99,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, items, updateQuanti
                                 <div>
                                   <div className="flex justify-between text-base font-medium text-gray-900">
                                     <h3>{item.name}</h3>
-                                    <p className="ml-4">${(item.price * item.quantity).toFixed(2)}</p>
+                                    <p className="ml-4">{formatCurrency(item.price * item.quantity)}</p>
                                   </div>
                                 </div>
                                 <div className="flex-1 flex items-end justify-between text-sm">
@@ -138,7 +139,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, items, updateQuanti
                 <div className="border-t border-gray-200 py-6 px-4 sm:px-6">
                   <div className="flex justify-between text-base font-medium text-gray-900">
                     <p>Subtotal</p>
-                    <p>${total.toFixed(2)}</p>
+                    <p>{formatCurrency(total)}</p>
                   </div>
                   <p className="mt-0.5 text-sm text-gray-500">Envío e impuestos calculados al finalizar.</p>
                   <div className="mt-6">

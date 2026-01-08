@@ -1,0 +1,22 @@
+Prompt de Funcionalidad: GastroManager RBAC (App de Pedidos)
+Descripción General: Es una aplicación web moderna diseñada para la gestión de pedidos de un restaurante, construida con React (Vite), TypeScript, Tailwind CSS y Supabase como Backend-as-a-Service. La aplicación implementa un sistema robusto de Control de Acceso Basado en Roles (RBAC).
+
+1. Vistas Públicas (Cliente)
+Menú Dinámico: Visualización de productos organizados por categorías. Los precios están formateados automáticamente en Pesos Argentinos (ej: $ 1500.00).
+Carrito de Compras: Sistema persistente (en sesión) para añadir productos, ajustar cantidades y calcular totales en tiempo real con formato ARS.
+Envío de Pedidos: Los clientes pueden realizar pedidos sin necesidad de crear una cuenta. El pedido se envía a Supabase con estado inicial "Pendiente".
+2. Gestión de Pedidos (Empleado y Administrador)
+Panel de Control (Dashboard): Vista protegida donde el personal puede ver el listado de pedidos activos en tiempo real, ordenados por fecha.
+Control de Estados: Capacidad de actualizar el flujo de un pedido: Pendiente -> En Preparación -> Listo -> Entregado.
+3. Facultades del Administrador (Admin)
+Gestión de Inventario (CRUD): Alta, baja y modificación de productos.
+IA de Google Gemini: Integración con la API de Gemini para generar automáticamente descripciones atractivas de los platos basadas en su nombre.
+Almacenamiento de Imágenes: Carga directa de fotos de productos a Supabase Storage.
+Gestión de Empleados: Módulo exclusivo para dar de alta nuevos miembros del staff mediante un sistema de "Silent Signup" (permite registrar usuarios sin cerrar la sesión del administrador).
+4. Seguridad y Autenticación
+Supabase Auth: Autenticación segura mediante email y contraseña.
+RBAC (Role-Based Access Control):
+client: Sólo ve el menú y hace pedidos.
+employee: Accede al panel de pedidos para gestionarlos.
+admin: Control total (pedidos, productos, empleados y configuración).
+Políticas RLS: Seguridad a nivel de base de datos en Supabase que restringe quién puede leer o escribir en cada tabla.

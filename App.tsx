@@ -42,9 +42,9 @@ const AuthProvider = ({ children }: { children?: React.ReactNode }) => {
         return;
       }
 
-      // TIMEOUT FAILSAFE
+      // TIMEOUT FAILSAFE - Increased to 30s due to potential local network/DNS slowness
       const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Auth initialization timed out after 15s")), 15000)
+        setTimeout(() => reject(new Error("Auth initialization timed out after 30s")), 30000)
       );
 
       try {

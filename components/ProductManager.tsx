@@ -1,15 +1,14 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Product } from '../types';
 import { fetchProducts, createProduct, deleteProduct, updateProduct, uploadProductImage } from '../services/dataService';
-import { generateProductDescription } from '../services/geminiService';
-import { Trash2, Sparkles, Plus, Loader2, Edit, Upload, X } from 'lucide-react';
+import { Trash2, Plus, Loader2, Edit, Upload, X } from 'lucide-react';
+import { formatCurrency } from '../services/formatters';
 
 export const ProductManager: React.FC = () => {
   const [productos, setProducts] = useState<Product[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [generatingAI, setGeneratingAI] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
 
   // Form State
@@ -23,13 +22,6 @@ export const ProductManager: React.FC = () => {
 
   useEffect(() => { loadProducts(); }, []);
 
-  const handleGenerateDescription = async () => {
-    if (!formData.name) return;
-    setGeneratingAI(true);
-    const desc = await generateProductDescription(formData.name, formData.category);
-    setFormData(prev => ({ ...prev, description: desc }));
-    setGeneratingAI(false);
-  };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
@@ -162,12 +154,8 @@ export const ProductManager: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 flex justify-between">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
                 <span>Descripción</span>
-                <button type="button" onClick={handleGenerateDescription} className="text-orange-600 text-xs flex items-center hover:underline disabled:opacity-50" disabled={generatingAI || !formData.name}>
-                  {generatingAI ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Sparkles className="w-3 h-3 mr-1" />}
-                  Generar con IA
-                </button>
               </label>
               <textarea required rows={3} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-orange-500 focus:ring-orange-500" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} />
             </div>
@@ -214,7 +202,7 @@ export const ProductManager: React.FC = () => {
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{product.category}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.price.toFixed(2)}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatCurrency(product.price)}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <button onClick={() => handleEditClick(product)} className="text-blue-600 hover:text-blue-900 mr-4" title="Editar">
                     <Edit className="w-4 h-4" />

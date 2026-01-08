@@ -3,6 +3,7 @@ import { Order, OrderStatus } from '../types';
 import { fetchOrders, updateOrderStatus } from '../services/dataService';
 import { supabase } from '../services/supabaseClient';
 import { Clock, CheckCircle, Truck, Package, RefreshCw } from 'lucide-react';
+import { formatCurrency } from '../services/formatters';
 
 export const OrderList: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -137,11 +138,11 @@ export const OrderList: React.FC = () => {
                 {order.items.map((item, idx) => (
                   <li key={idx} className="flex justify-between">
                     <span>{item.quantity}x {item.name}</span>
-                    <span>${(item.price * item.quantity).toFixed(2)}</span>
+                    <span>{formatCurrency(item.price * item.quantity)}</span>
                   </li>
                 ))}
               </ul>
-              <div className="mt-2 text-right font-bold text-gray-900">Total: ${order.total.toFixed(2)}</div>
+              <div className="mt-2 text-right font-bold text-gray-900">Total: {formatCurrency(order.total)}</div>
             </div>
           </div>
         ))}

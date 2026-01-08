@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAuth } from '../App';
-import { ShoppingBag, LogOut, Coffee } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { ShoppingBag, Coffee } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface NavbarProps {
   toggleCart?: () => void;
@@ -9,13 +9,7 @@ interface NavbarProps {
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ toggleCart, cartCount = 0 }) => {
-  const { user, signOut } = useAuth();
-  const navigate = useNavigate();
-
-  const handleSignOut = async () => {
-    await signOut();
-    navigate('/');
-  };
+  const { user } = useAuth();
 
   return (
     <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
@@ -57,19 +51,9 @@ export const Navbar: React.FC<NavbarProps> = ({ toggleCart, cartCount = 0 }) => 
             )}
 
             {user ? (
-              <div className="flex items-center gap-4">
-                <div className="text-sm text-right hidden md:block">
-                  <p className="font-medium text-gray-900">{user.email}</p>
-                  <p className="text-xs text-gray-500 capitalize">{user.role === 'admin' ? 'Administrador' : 'Empleado'}</p>
-                </div>
-                <button
-                  onClick={handleSignOut}
-                  className="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
-                  title="Sign Out"
-                >
-                  <LogOut className="h-5 w-5" />
-                </button>
-              </div>
+              <span className="text-sm font-medium text-orange-600 hidden sm:block">
+                Modo {user.role === 'admin' ? 'Administrador' : 'Empleado'}
+              </span>
             ) : (
               <Link
                 to="/login"
